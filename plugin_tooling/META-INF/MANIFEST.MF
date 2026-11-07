@@ -7,6 +7,7 @@ Bundle-Vendor: %pluginProvider
 Bundle-Localization: plugin
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: org.dsource.ddt.dtool
 Require-Bundle: com.google.gson;bundle-version="[2.2.4,3.0.0)",
  melnorme_util;bundle-version="0.12.0";visibility:=reexport
 Bundle-ClassPath: .

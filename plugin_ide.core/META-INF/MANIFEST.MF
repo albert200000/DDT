@@ -8,6 +8,7 @@ Bundle-Localization: plugin
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: mmrnmhrm.core.DeeCorePlugin
 Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: org.dsource.ddt.ide.core
 Require-Bundle: com.google.gson;bundle-version="[2.2.4,3.0.0)",
  org.dsource.ddt.dtool;visibility:=reexport,
  org.eclipse.core.runtime;bundle-version="[3.9.0,4.0.0)";visibility:=reexport,
