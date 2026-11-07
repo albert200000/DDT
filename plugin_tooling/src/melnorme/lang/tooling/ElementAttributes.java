@@ -12,17 +12,15 @@ package melnorme.lang.tooling;
 
 import java.util.EnumSet;
 
-import melnorme.lang.tooling.LANG_SPECIFIC;
-
 @LANG_SPECIFIC
 public class ElementAttributes extends AbstractElementAttributes {
-	
+
 	public ElementAttributes(EProtection protection, EnumSet<EAttributeFlag> flagsSet) {
 		super(protection, flagsSet);
 	}
-	
+
 	public ElementAttributes(EProtection protection, EAttributeFlag... flagsArray) {
 		super(protection, flagsArray);
 	}
-	
+
 }

@@ -16,12 +16,10 @@ import melnorme.utilbox.tests.CommonTest;
 
 import org.junit.Test;
 
-import dtool.dub.DubBuildOutputParser;
-
 public class DubBuilderOutputParserTest extends CommonTest {
-	
+
 	protected static final String NL = System.getProperty("line.separator");
-	
+
 	@Test
 	public void testParseErrorLine() throws Exception { testParseErrorLine$(); }
 	public void testParseErrorLine$() throws Exception {
@@ -32,24 +30,24 @@ public class DubBuilderOutputParserTest extends CommonTest {
 		testParseErrorLine("nana/somefile.d: Error: blah" + NL);
 		testParseErrorLine("xxx"+NL+"somefile.d(12): Error: blah" + NL, "somefile.d", "12", "blah");
 	}
-	
+
 	protected int lineCount = 0;
-	
+
 	protected void testParseErrorLine(String output) {
 		testParseErrorLine(output, null, null, null);
 	}
-	
-	protected void testParseErrorLine(String output, 
+
+	protected void testParseErrorLine(String output,
 			final String expectedFile, final String expectedLineStr, final  String expectedErrorMsg) {
-		
+
 		lineCount = 0;
-		
+
 		new DubBuildOutputParser<Exception>() {
 			@Override
 			protected void processDubFailure(String dubErrorLine) throws Exception {
 				assertFail();
 			};
-			
+
 			 @Override
 			protected void processCompilerError(String file, String lineStr, String errorMsg) {
 				assertEquals(file, expectedFile);
@@ -58,12 +56,12 @@ public class DubBuilderOutputParserTest extends CommonTest {
 				lineCount++;
 			}
 		 }.processCompilerErrors(output);
-		 
+
 		 if(expectedFile == null) {
 			 assertTrue(lineCount == 0);
 		 } else {
 			 assertTrue(lineCount == 1);
 		 }
 	}
-	
+
 }

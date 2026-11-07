@@ -32,7 +32,6 @@ import melnorme.lang.ide.core.project_model.view.DependenciesContainer;
 import melnorme.lang.ide.core.project_model.view.RawDependencyElement;
 import melnorme.lang.ide.ui.LangImages;
 import melnorme.lang.ide.ui.LangUIPlugin;
-import melnorme.lang.ide.ui.navigator.NavigatorElementsSwitcher;
 import melnorme.lang.ide.ui.views.AbstractLangLabelProvider;
 import melnorme.util.swt.jface.resources.CompositeImageDescriptorExt.Corner;
 import melnorme.util.swt.jface.resources.DecoratedImageDescriptor;
@@ -41,7 +40,7 @@ import melnorme.utilbox.collections.ArrayList2;
 
 
 public abstract class LangNavigatorLabelProvider extends AbstractLangLabelProvider {
-	
+
 	protected final ArrayList2<ILabelDecorator> labelDecorators = new ArrayList2<>();
 	protected final ImageDescriptorRegistry registry;
 
@@ -57,119 +56,119 @@ public abstract class LangNavigatorLabelProvider extends AbstractLangLabelProvid
 		});
 		this.labelDecorators.add(problemsLabelDecorator);
 	}
-	
+
 	protected ImageDescriptorRegistry init_getImageRegistry() {
 		return LangUIPlugin.getDefault().getImageDescriptorRegistry();
 	}
-	
+
 	@Override
 	public void dispose() {
 		for(ILabelDecorator labelDecorator : labelDecorators) {
 			labelDecorator.dispose();
 		}
 	}
-	
+
 	/* ----------------- text ----------------- */
-	
+
 	@Override
 	public StyledString getStyledText(Object element) {
 		return getStyledString_switcher().switchElement(element);
 	}
-	
+
 	protected abstract DefaultGetStyledStringSwitcher getStyledString_switcher();
-	
+
 	public static abstract class DefaultGetStyledStringSwitcher implements NavigatorElementsSwitcher<StyledString> {
-		
+
 		@Override
 		public StyledString visitProject(IProject project) {
 			return null;
 		}
-		
+
 		@Override
 		public StyledString visitManifestFile(IFile element) {
 			return null;
 		}
-		
+
 		@Override
 		public StyledString visitBuildTargetsElement(BuildTargetsContainer buildTargetsElement) {
 			return new StyledString(buildTargetsElement.getText());
 		}
-		
+
 		@Override
 		public StyledString visitBuildTarget(BuildTargetElement buildTarget) {
 			return new StyledString(buildTarget.getTargetDisplayName());
 		}
-		
+
 	}
-	
+
 	public abstract class BundleModelGetStyledStringSwitcher
 		implements BundleModelElementsSwitcher<StyledString> {
-		
+
 		@Override
 		public StyledString visitErrorElement2(BundleErrorElement element) {
 			return new StyledString(element.errorDescription);
 		}
-		
+
 		@Override
 		public StyledString visitDepContainer(DependenciesContainer element) {
 			return new StyledString("Dependencies");
 		}
-		
+
 		@Override
 		public StyledString visitRawDepElement(RawDependencyElement element) {
 			StyledString baseString = new StyledString(element.getElementName());
 			appendBundleRef(baseString, null, element.getDependencyRef().getVersion());
 			return baseString;
 		}
-		
+
 	}
-	
+
 	protected RGB ANNOTATION_FG = new RGB(120, 120, 200);
-	
+
 	protected StyledString appendBundleRef(StyledString baseString, String bundleName, String bundleVersion) {
 		String bundleNameString = bundleName == null ? "" :  bundleName + " ";
 		String versionString = bundleVersion == null ? "?" : bundleVersion;
 		String bundleRefString = " [" + bundleNameString + versionString + "]";
 		return baseString.append(bundleRefString, fgColor(ANNOTATION_FG));
 	}
-	
+
 	/* ----------------- image ----------------- */
-	
+
 	@Override
 	public Image getImage(Object element) {
 		Image baseImage = getBaseImage(element);
 		return decorateImage(baseImage, element);
 	}
-	
+
 	public Image getBaseImage(Object element) {
 		ImageDescriptor baseImage = getBaseImage_switcher().switchElement(element);
 		if(baseImage != null) {
 			return registry.get(baseImage);
 		}
-		
+
 		if(element instanceof IResource) {
 			IResource resource = (IResource) element;
 			return registry.get(getWorkbenchImageDescriptor(resource));
 		}
 		return null;
 	}
-	
+
 	protected abstract DefaultGetImageSwitcher getBaseImage_switcher();
-	
+
 	public static abstract class DefaultGetImageSwitcher implements NavigatorElementsSwitcher<ImageDescriptor> {
-		
+
 		@Override
 		public ImageDescriptor visitBuildTargetsElement(BuildTargetsContainer buildTargetsElement) {
 			return LangImages.BUILD_TARGETS_ELEM.getDescriptor();
 		}
-		
+
 		@Override
 		public ImageDescriptor visitBuildTarget(BuildTargetElement buildTarget) {
 			ImageDescriptor baseImage = LangImages.BUILD_TARGET.getDescriptor();
-			
+
 			boolean normalEnabled = buildTarget.getBuildTarget().isNormalBuildEnabled();
 			boolean autoEnabled = buildTarget.getBuildTarget().isAutoBuildEnabled();
-			
+
 			if(normalEnabled && autoEnabled) {
 				return new DecoratedImageDescriptor(baseImage, LangImages.OVR_BUILD_BOTH_CHECKED, Corner.BOTTOM_RIGHT);
 			}
@@ -181,49 +180,49 @@ public abstract class LangNavigatorLabelProvider extends AbstractLangLabelProvid
 			}
 			return baseImage;
 		}
-		
+
 		@Override
 		public ImageDescriptor visitManifestFile(IFile element) {
 			return null;
 		}
-		
+
 	}
-	
+
 	public static abstract class BundleModelGetImageSwitcher
 			implements BundleModelElementsSwitcher<ImageDescriptor> {
-		
+
 		@Override
 		public ImageDescriptor visitDepContainer(DependenciesContainer element) {
 			return LangImages.NAV_Library;
 		}
-		
+
 		@Override
 		public ImageDescriptor visitRawDepElement(RawDependencyElement element) {
 			return LangImages.NAV_Package;
 		}
-		
+
 		@Override
 		public ImageDescriptor visitErrorElement2(BundleErrorElement element) {
 			return LangImages.NAV_Error;
 		}
-		
+
 	}
-	
+
 	protected ImageDescriptor getWorkbenchImageDescriptor(IAdaptable adaptable) {
 		IWorkbenchAdapter workbenchAdapter= (IWorkbenchAdapter) adaptable.getAdapter(IWorkbenchAdapter.class);
 		if (workbenchAdapter == null) {
 			return null;
 		}
 		ImageDescriptor descriptor = workbenchAdapter.getImageDescriptor(adaptable);
-		
+
 		return descriptor;
 	}
-	
+
 	protected Image decorateImage(Image image, Object element) {
 		for(ILabelDecorator labelDecorator : labelDecorators) {
 			image = labelDecorator.decorateImage(image, element);
 		}
 		return image;
 	}
-	
+
 }

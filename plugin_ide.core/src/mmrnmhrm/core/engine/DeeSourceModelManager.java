@@ -22,7 +22,6 @@ import dtool.parser.structure.DeeStructureCreator;
 import melnorme.lang.ide.core.engine.DocumentReconcileManager;
 import melnorme.lang.ide.core.engine.ProblemMarkerUpdater;
 import melnorme.lang.ide.core.engine.SourceModelManager;
-import melnorme.lang.ide.core.engine.SourceModelManager.StructureInfo;
 import melnorme.lang.tooling.structure.SourceFileStructure;
 import melnorme.utilbox.concurrency.OperationCancellation;
 import melnorme.utilbox.misc.Location;
@@ -58,38 +57,38 @@ public class DeeSourceModelManager extends SourceModelManager {
 		this.languageEngine = assertNotNull(languageEngine);
 		this.lspSync = lspSync;
 	}
-	
+
 	public SemanticManager getServerSemanticManager() {
 		return languageEngine.dtoolServer.getSemanticManager();
 	}
-	
+
 	protected ModuleParseCache getParseCache() {
 		return getServerSemanticManager().getParseCache();
 	}
-	
+
 	/* -----------------  ----------------- */
-	
+
 	public abstract class WorkingCopyStructureUpdateTask extends StructureUpdateTask {
-		
+
 		protected final Location fileLocation; // can be null
-		
+
 		public WorkingCopyStructureUpdateTask(StructureInfo structureInfo) {
 			super(structureInfo);
 			this.fileLocation = structureInfo.getLocation();
 		}
-		
+
 		@Override
 		protected SourceFileStructure doCreateNewData() throws OperationCancellation {
-			ParsedModule parsedModule = (fileLocation == null) ? 
+			ParsedModule parsedModule = (fileLocation == null) ?
 					parseModuleWithNoLocation() :
 					setWorkingSourceAndParseModule(fileLocation);
-			
+
 			if(parsedModule == null || isCancelled()) {
 				throw new OperationCancellation();
 			}
 			return new DeeStructureCreator().createStructure(parsedModule, fileLocation);
 		}
-		
+
 		/**
 		 * @param fileLocation non-null
 		 */
@@ -103,7 +102,7 @@ public class DeeSourceModelManager extends SourceModelManager {
 					}
 				}
 			});
-			
+
 			if(isCancelled()) {
 				return null;
 			}
@@ -113,16 +112,16 @@ public class DeeSourceModelManager extends SourceModelManager {
 				return null;
 			}
 		}
-		
+
 		protected abstract ParsedModule parseModuleWithNoLocation();
-		
+
 		protected abstract void modifyWorkingSource(CachedModuleEntry lockedEntry);
-		
-		protected abstract ParsedModule parseModuleFromWorkingCopy(CachedModuleEntry entry) 
+
+		protected abstract ParsedModule parseModuleFromWorkingCopy(CachedModuleEntry entry)
 				throws OperationCancellation;
-		
+
 	}
-	
+
 	@Override
 	protected StructureUpdateTask createUpdateTask(StructureInfo structureInfo, String source) {
 		if (lspSync != null) {
@@ -130,9 +129,9 @@ public class DeeSourceModelManager extends SourceModelManager {
 		}
 
 		assertNotNull(source);
-		
+
 		return new WorkingCopyStructureUpdateTask(structureInfo) {
-			
+
 			@Override
 			protected ParsedModule parseModuleWithNoLocation() {
 				try {
@@ -141,12 +140,12 @@ public class DeeSourceModelManager extends SourceModelManager {
 					return null;
 				}
 			}
-			
+
 			@Override
 			protected void modifyWorkingSource(CachedModuleEntry lockedEntry) {
 				lockedEntry.setWorkingSource(source);
 			}
-			
+
 			@Override
 			protected ParsedModule parseModuleFromWorkingCopy(CachedModuleEntry entry) throws OperationCancellation {
 				try {
@@ -157,7 +156,7 @@ public class DeeSourceModelManager extends SourceModelManager {
 			}
 		};
 	}
-	
+
 	@Override
 	protected DisconnectUpdatesTask createDisconnectTask(StructureInfo structureInfo) {
 		if (lspSync != null) {

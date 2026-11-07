@@ -46,12 +46,12 @@ public abstract class DefaultFoldingPreferenceConfigurationBlock extends
 	}
 
 	private Composite foldingOptionsComposite;
-	
+
 	@Override
 	public int getPreferredLayoutColumns() {
 		return 1;
 	}
-	
+
 	@Override
 	protected void doCreateContents(Composite topControl) {
 		// TODO: remove redundant topControl creation.
@@ -152,15 +152,15 @@ public abstract class DefaultFoldingPreferenceConfigurationBlock extends
 			disableFoldingControls();
 		}
 	}
-	
+
 	public void loadDefaults() {
 		performDefaults();
 	}
-	
+
 	public void doSaveSettings() throws BackingStoreException {
 		performOk();
 	}
-	
+
 	private void createMinLines(Composite parent) {
 		Composite composite = SWTFactory.createComposite(parent, parent
 				.getFont(), 2, 1, GridData.FILL);
@@ -168,8 +168,8 @@ public abstract class DefaultFoldingPreferenceConfigurationBlock extends
 
 		int minLines = defaultMinLines();
 
-		SWTFactory.createLabel(composite, 
-			NLS.bind(PreferencesMessages.FoldingConfigurationBlock_minLinesToEnableFolding, new Integer(minLines)), 
+		SWTFactory.createLabel(composite,
+			NLS.bind(PreferencesMessages.FoldingConfigurationBlock_minLinesToEnableFolding, Integer.valueOf(minLines)),
 			0, 1);
 
 		Text textBox = SWTFactory.createText(composite, SWT.BORDER, 1, "");

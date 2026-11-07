@@ -20,35 +20,32 @@ import melnorme.lang.tooling.EProtection;
 import melnorme.lang.tooling.ElementAttributes;
 import melnorme.lang.tooling.ast.SourceRange;
 import melnorme.lang.tooling.common.ParserError;
-import melnorme.lang.tooling.structure.SourceFileStructure;
-import melnorme.lang.tooling.structure.StructureElement;
-import melnorme.lang.tooling.structure.StructureElementKind;
 import melnorme.utilbox.collections.ArrayList2;
 import melnorme.utilbox.collections.Indexable;
 import melnorme.utilbox.core.CommonException;
 
 public abstract class AbstractStructureParser_Test extends CommonToolingTest {
-	
+
 	protected static final String DEFAULT_SOURCE = "aaaaa\n0123456789\nxxx\nabcdefghijkl\n";
-	
+
 	public AbstractStructureParser_Test() {
 		super();
 	}
-	
+
 	protected String source = DEFAULT_SOURCE;
-	
+
 	public static String quoteString(String string) {
 		return '"' + replaceAll(string, "\"", "\\\"") + '"';
 	}
-	
+
 	protected SourceRange sr(int offset, int length) {
 		return new SourceRange(offset, length);
 	}
-	
+
 	protected SourceRange srAt(int startPos, int endPos) {
 		return SourceRange.srStartToEnd(startPos, endPos);
 	}
-	
+
 	protected int pos(int line_0, int col_0) {
 		int lineOffset = 0;
 		while(line_0 > 0) {
@@ -59,23 +56,23 @@ public abstract class AbstractStructureParser_Test extends CommonToolingTest {
 		}
 		return lineOffset + col_0;
 	}
-	
+
 	public static ElementAttributes attrib(EProtection protection, EAttributeFlag... flags) {
 		return new ElementAttributes(protection, flags);
 	}
-	
+
 	public static ElementAttributes att(EAttributeFlag... flags) {
 		return new ElementAttributes(null, flags);
 	}
-	
+
 	public static ElementAttributes attPub(EAttributeFlag... flags) {
 		return new ElementAttributes(EProtection.PUBLIC, flags);
 	}
-	
+
 	public static ElementAttributes attPriv(EAttributeFlag... flags) {
 		return new ElementAttributes(EProtection.PRIVATE, flags);
 	}
-	
+
 	public StructureElement elem(String name, SourceRange sr, SourceRange nameSR, StructureElementKind elementKind,
 			ElementAttributes elementAttributes, String type, Indexable<StructureElement> children) {
 		if(elementAttributes == null) {
@@ -83,26 +80,26 @@ public abstract class AbstractStructureParser_Test extends CommonToolingTest {
 		}
 		return new StructureElement(name, nameSR, sr, elementKind, elementAttributes, type, children);
 	}
-	
+
 	/* -----------------  ----------------- */
-	
-	protected void testParseStructure(String describeOutput, Indexable<ParserError> parserProblems, 
+
+	protected void testParseStructure(String describeOutput, Indexable<ParserError> parserProblems,
 			StructureElement... expectedElements)
 			throws CommonException {
 		ArrayList2<StructureElement> expectedStructure = ArrayList2.create(expectedElements);
 		SourceFileStructure expected = new SourceFileStructure(null, expectedStructure, parserProblems);
-		
+
 		testParseStructure(describeOutput, expected);
 	}
-	
+
 	protected void testParseStructure(String describeOutput, SourceFileStructure expected) throws CommonException {
 		AbstractStructureParser parser = createStructureParser();
 		SourceFileStructure structure = parser.parse(describeOutput);
 		assertAreEqual(structure.getChildren(), expected.getChildren());
-		
+
 		assertEquals(expected, structure);
 	}
-	
+
 	protected abstract AbstractStructureParser createStructureParser();
-	
+
 }

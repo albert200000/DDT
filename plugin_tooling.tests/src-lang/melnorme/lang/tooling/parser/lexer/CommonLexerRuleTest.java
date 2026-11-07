@@ -12,19 +12,18 @@ package melnorme.lang.tooling.parser.lexer;
 
 
 import melnorme.lang.tests.CommonToolingTest;
-import melnorme.lang.tooling.parser.lexer.IPredicateLexingRule;
 import melnorme.lang.utils.parse.StringCharSource;
 
 public abstract class CommonLexerRuleTest extends CommonToolingTest {
-	
+
 	public CommonLexerRuleTest() {
 		super();
 	}
-	
+
 	public void testRule(String source) {
 		testRule(source, true);
 	}
-	
+
 	public void testRule(String source, boolean terminatedSuccessfuly) {
 		testRule(source, source.length());
 		if(terminatedSuccessfuly) {
@@ -32,17 +31,17 @@ public abstract class CommonLexerRuleTest extends CommonToolingTest {
 			testRule(source + getRuleNeutralSuffix(), source.length());
 		}
 	}
-	
+
 	protected String getRuleNeutralSuffix() {
 		return "xxxx";
 	}
-	
+
 	public void testRule(String source, int expectedTokenLength) {
 		testRule(createLexingRule(), source, expectedTokenLength);
 	}
-	
+
 	protected abstract IPredicateLexingRule createLexingRule();
-	
+
 	public static void testRule(IPredicateLexingRule lexRule, String source, int expectedTokenLength) {
 		StringCharSource reader = new StringCharSource(source);
 		boolean isMatch = lexRule.tryMatch(reader);
@@ -52,5 +51,5 @@ public abstract class CommonLexerRuleTest extends CommonToolingTest {
 			assertEquals(reader.getReadPosition(), expectedTokenLength);
 		}
 	}
-	
+
 }
