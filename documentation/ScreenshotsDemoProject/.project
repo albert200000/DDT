@@ -12,6 +12,5 @@
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>org.dsource.ddt.ide.core.nature</nature>
 	</natures>
 </projectDescription>
