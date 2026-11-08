@@ -70,7 +70,7 @@ public class LangElementImageDescriptor extends CompositeImageDescriptorExt {
 	@Override
 	protected void drawCompositeImage(int width, int height) {
 		ImageData bg = getImageData(baseImage);
-		drawImage(bg, 0, 0);
+		drawImage(toProvider(bg), 0, 0);
 		
 		
 		resetDrawPosition(Corner.TOP_LEFT);

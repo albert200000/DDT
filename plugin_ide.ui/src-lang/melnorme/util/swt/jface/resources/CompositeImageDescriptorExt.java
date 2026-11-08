@@ -17,6 +17,7 @@ import static melnorme.utilbox.core.Assert.AssertNamespace.assertUnreachable;
 import org.eclipse.jface.resource.CompositeImageDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageDataProvider;
 
 import melnorme.lang.ide.core.LangCore;
 import melnorme.utilbox.collections.Indexable;
@@ -31,12 +32,22 @@ public abstract class CompositeImageDescriptorExt extends CompositeImageDescript
 	}
 	
 	protected ImageData getImageData(ImageDescriptor desc) {
-		ImageData imageData = desc.getImageData();
+		ImageData imageData = desc.getImageData(getZoomLevel());
 		if(imageData == null) {
 			LangCore.logError("Could not get ImageData.");
 			return new ImageData(1, 1, 32, DEFAULT_IMAGE_DATA.palette);
 		}
 		return imageData;
+	}
+
+	protected ImageDataProvider toProvider(ImageData data) {
+		final ImageData imageData = (data == null) ? new ImageData(1, 1, 32, DEFAULT_IMAGE_DATA.palette) : data;
+		return new ImageDataProvider() {
+			@Override
+			public ImageData getImageData(int zoom) {
+				return imageData;
+			}
+		};
 	}
 	
 	/* -----------------  ----------------- */
@@ -107,15 +118,16 @@ public abstract class CompositeImageDescriptorExt extends CompositeImageDescript
 	}
 
 	protected void drawOverlayAtCursor(ImageDescriptor overlayImage, Corner corner) {
-		ImageData imageData = getImageData(overlayImage);
+		ImageDataProvider provider = createCachedImageDataProvider(overlayImage);
+		ImageData overlayData = provider.getImageData(getZoomLevel());
 		if(corner.isRight()) {
-			xOffset -= imageData.width;
+			xOffset -= overlayData.width;
 		}
-		int ypos = corner.isTop() ? yOffset : yOffset - imageData.height;
-		drawImage(imageData, xOffset, ypos);
+		int ypos = corner.isTop() ? yOffset : yOffset - overlayData.height;
+		drawImage(provider, xOffset, ypos);
 		
 		if(corner.isLeft()) {
-			xOffset += imageData.width;
+			xOffset += overlayData.width;
 		}
 	}
 
