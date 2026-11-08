@@ -33,10 +33,14 @@ public class ReflectionUtils {
 	 * Returns null if the instance could not be created. */
 	public static Object newInstanceSafe(final Class<?> klass) {
 		try {
-			return klass.newInstance();
+			return klass.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException e) {
 			return null;
 		} catch (IllegalAccessException e) {
+			return null;
+		} catch (NoSuchMethodException e) {
+			return null;
+		} catch (InvocationTargetException e) {
 			return null;
 		}
 	}

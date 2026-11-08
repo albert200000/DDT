@@ -35,7 +35,7 @@ public class DecoratedImageDescriptor extends CompositeImageDescriptorExt {
 	
 	@Override
 	protected Point getSize() {
-		ImageData imageData = baseImage.getImageData();
+		ImageData imageData = baseImage.getImageData(getZoomLevel());
 		return new Point(imageData.width, imageData.height);
 	}
 	

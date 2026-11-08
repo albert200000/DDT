@@ -38,7 +38,7 @@ public class Assert {
 		} else {
 			try {
 				final Class<?> klass = Class.forName(assertHandlerStr);
-				Object handler = klass.newInstance();
+				Object handler = klass.getDeclaredConstructor().newInstance();
 				if(handler instanceof Runnable) {
 					final Runnable runnableHandler = (Runnable) handler;
 					assertHandler = new AssertHandler() {

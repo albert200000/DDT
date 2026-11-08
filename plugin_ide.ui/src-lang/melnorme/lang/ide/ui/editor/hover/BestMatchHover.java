@@ -14,6 +14,7 @@ package melnorme.lang.ide.ui.editor.hover;
 
 import static melnorme.utilbox.core.Assert.AssertNamespace.assertNotNull;
 import static melnorme.utilbox.core.CoreUtil.option;
+import java.lang.reflect.InvocationTargetException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,10 +61,14 @@ public class BestMatchHover extends AbstractEditorTextHover
 		for (int i= 0; i < textHoverSpecs.size(); i++) {
 			Class<? extends ILangEditorTextHover<?>> klass = textHoverSpecs.get(i);
 			try {
-				fInstantiatedTextHovers.add(klass.newInstance());
+				fInstantiatedTextHovers.add(klass.getDeclaredConstructor().newInstance());
 			} catch (InstantiationException e) {
 				LangCore.logInternalError(e);
 			} catch (IllegalAccessException e) {
+				LangCore.logInternalError(e);
+			} catch (NoSuchMethodException e) {
+				LangCore.logInternalError(e);
+			} catch (InvocationTargetException e) {
 				LangCore.logInternalError(e);
 			}
 		}

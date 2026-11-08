@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.MultiStringMatcher;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextOperationTarget;
@@ -279,13 +280,13 @@ public class ToggleCommentAction extends TextEditorAction_Adapter {
 				IRegion line= document.getLineInformation(i);
 				String text= document.get(line.getOffset(), line.getLength());
 
-				int[] found= TextUtilities.indexOf(prefixes, text, 0);
+				org.eclipse.jface.text.MultiStringMatcher.Match match= MultiStringMatcher.indexOf(text, 0, prefixes);
 
-				if (found[0] == -1)
+				if (match == null)
 					// found a line which is not commented
 					return false;
 
-				String s= document.get(line.getOffset(), found[0]);
+				String s= document.get(line.getOffset(), match.getOffset());
 				s= s.trim();
 				if (s.length() != 0)
 					// found a line which is not commented
