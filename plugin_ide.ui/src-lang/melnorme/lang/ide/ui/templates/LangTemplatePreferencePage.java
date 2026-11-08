@@ -42,7 +42,7 @@ public abstract class LangTemplatePreferencePage extends TemplatePreferencePage 
 		super();
 		setPreferenceStore(LangUIPlugin.getInstance().getPreferenceStore());
 		setTemplateStore(LangUIPlugin.getTemplateRegistry().getTemplateStore());
-		setContextTypeRegistry(LangUIPlugin.getTemplateRegistry().getContextTypeRegistry());
+		setContextTypeRegistry(LangUIPlugin.getTemplateRegistry().getContributionContextTypeRegistry());
 
 		setDescription(LangUIMessages.TemplatePreferencePage_message);
 	}

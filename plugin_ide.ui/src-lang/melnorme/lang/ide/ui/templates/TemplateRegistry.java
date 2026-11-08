@@ -20,7 +20,9 @@ import melnorme.lang.ide.ui.LangUIPlugin;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.templates.TemplateContextType;
+
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
+import org.eclipse.text.templates.ContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 
@@ -28,7 +30,7 @@ public class TemplateRegistry {
 
 	private static final String TEMPLATES_PREF_KEY = "LangTemplatesStore";
 
-	protected ContributionContextTypeRegistry contextTypeRegistry;
+	protected ContextTypeRegistry contextTypeRegistry;
 	protected TemplateStore store;
 
 	public IPreferenceStore getPreferenceStore() {
@@ -41,7 +43,7 @@ public class TemplateRegistry {
 
 	public TemplateStore getTemplateStore() {
 		if(store == null) {
-			store = new ContributionTemplateStore(getContextTypeRegistry(), getPreferenceStore(), TEMPLATES_PREF_KEY);
+			store = new ContributionTemplateStore(getContributionContextTypeRegistry(), getPreferenceStore(), TEMPLATES_PREF_KEY);
 			try {
 				store.load();
 			} catch (IOException e) {
@@ -51,14 +53,18 @@ public class TemplateRegistry {
 		return store;
 	}
 
-	public ContributionContextTypeRegistry getContextTypeRegistry() {
+	public ContextTypeRegistry getContextTypeRegistry() {
 		if(contextTypeRegistry == null) {
 			contextTypeRegistry = createContributionContextTypeRegistry();
 		}
 		return contextTypeRegistry;
 	}
 
-	protected ContributionContextTypeRegistry createContributionContextTypeRegistry() {
+	protected ContributionContextTypeRegistry getContributionContextTypeRegistry() {
+		return (ContributionContextTypeRegistry) getContextTypeRegistry();
+	}
+
+	protected ContextTypeRegistry createContributionContextTypeRegistry() {
 		final ContributionContextTypeRegistry registry = new ContributionContextTypeRegistry();
 		for(String id : getRegisteredContextTypeIds()) {
 			registry.addContextType(id);
