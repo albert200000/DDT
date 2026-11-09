@@ -16,10 +16,8 @@ import mmrnmhrm.core.build.DeeBuildManager;
 import mmrnmhrm.core.build.DubLocationValidator;
 import mmrnmhrm.core.dub_model.DeeBundleModelManager;
 import mmrnmhrm.core.engine.DeeLanguageEngine;
-import mmrnmhrm.core.engine.DeeLanguageServerHandler;
 import mmrnmhrm.core.engine.DeeSourceModelManager;
 import mmrnmhrm.core.engine.DeeToolManager;
-import mmrnmhrm.core.lsp.LspServer;
 
 public class LangCore_Actual extends AbstractLangCore {
 	
@@ -29,7 +27,6 @@ public class LangCore_Actual extends AbstractLangCore {
 	public static final String BUILDER_ID = PLUGIN_ID + ".DubBuilder";
 	public static final String BUILD_PROBLEM_ID = PLUGIN_ID + ".build_problem";
 	public static final String SOURCE_PROBLEM_ID = PLUGIN_ID + ".source_problem";
-	public static final String LSP_PROBLEM_ID = PLUGIN_ID + ".lsp_problem";
 	
 	// Note: the variable should not be named with a prefix of LANGUAGE, 
 	// or it will interfere with MelnormeEclipse templating
@@ -64,15 +61,13 @@ public class LangCore_Actual extends AbstractLangCore {
 		return (DeeToolManager) instance.toolManager;
 	}
 	
-	@Override
-	public DeeLanguageServerHandler createLanguageServerHandler() {
-		return new DeeLanguageServerHandler();
-	}
-	public static DeeLanguageServerHandler deeLanguageEngineManager() {
-		return (DeeLanguageServerHandler) instance.languageServerHandler;
-	}
+	private static DeeLanguageEngine languageEngineSingleton;
+	
 	public static DeeLanguageEngine deeLanguageEngine() {
-		return deeLanguageEngineManager().getLanguageEngine();
+		if (languageEngineSingleton == null) {
+			languageEngineSingleton = new DeeLanguageEngine();
+		}
+		return languageEngineSingleton;
 	}
 	
 	public static DeeBundleModelManager createBundleModelManager() {
@@ -87,14 +82,8 @@ public class LangCore_Actual extends AbstractLangCore {
 		return new DeeBuildManager(deeBundleModelManager().getModel(), deeToolManager());
 	}
 	
-	public static LspServer getLspServer() {
-		return deeLanguageEngineManager().getLspServer();
-	}
-
 	public static DeeSourceModelManager createSourceModelManager() {
-		DeeLanguageServerHandler handler = deeLanguageEngineManager();
-		return new DeeSourceModelManager(deeLanguageEngine(),
-				handler.getLspServer(), handler.getLspTextSync());
+		return new DeeSourceModelManager(deeLanguageEngine());
 	}
 	public static DeeSourceModelManager deeSourceModelManager() {
 		return (DeeSourceModelManager) instance.sourceModelManager;

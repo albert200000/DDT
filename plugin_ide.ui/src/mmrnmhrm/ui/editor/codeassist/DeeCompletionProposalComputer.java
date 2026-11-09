@@ -10,14 +10,11 @@
  *******************************************************************************/
 package mmrnmhrm.ui.editor.codeassist;
 
-import java.io.IOException;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 
 import melnorme.lang.ide.core.LangCore;
-import melnorme.lang.ide.core.LangCore_Actual;
 import melnorme.lang.ide.core.utils.ResourceUtils;
 import melnorme.lang.ide.ui.text.completion.LangCompletionProposalComputer;
 import melnorme.lang.tooling.ToolCompletionProposal;
@@ -25,15 +22,12 @@ import melnorme.lang.tooling.common.ops.IOperationMonitor.NullOperationMonitor;
 import melnorme.lang.tooling.toolchain.ops.OperationSoftFailure;
 import melnorme.lang.tooling.toolchain.ops.SourceOpContext;
 import melnorme.lang.utils.concurrency.TimeoutCancelMonitor;
-import melnorme.utilbox.collections.ArrayList2;
 import melnorme.utilbox.collections.Indexable;
 import melnorme.utilbox.concurrency.ICancelMonitor;
 import melnorme.utilbox.concurrency.OperationCancellation;
 import melnorme.utilbox.core.CommonException;
 import melnorme.utilbox.misc.Location;
 import mmrnmhrm.core.engine.DeeLanguageEngine;
-import mmrnmhrm.core.lsp.LspFeatureSupport;
-import mmrnmhrm.core.lsp.LspServer;
 
 public class DeeCompletionProposalComputer extends LangCompletionProposalComputer {
 	
@@ -46,21 +40,7 @@ public class DeeCompletionProposalComputer extends LangCompletionProposalCompute
 	protected Indexable<ToolCompletionProposal> doComputeProposals(SourceOpContext sourceContext, ICancelMonitor cm)
 			throws CommonException, OperationCancellation, OperationSoftFailure {
 
-		// Try LSP backend first (only if serve-d advertised completionProvider)
-		LspServer lspServer = LangCore_Actual.getLspServer();
-		if (lspServer.isReady() && lspServer.hasCapability("completionProvider")) {
-			try {
-				Location fileLocation = sourceContext.getFileLocation();
-				String uri = LspFeatureSupport.fileUri(fileLocation);
-				ArrayList2<ToolCompletionProposal> proposals = LspFeatureSupport.requestCompletion(
-						lspServer.getRouter(), uri, sourceContext.getSource(), sourceContext.getOffset());
-				return proposals;
-			} catch (IOException | CommonException e) {
-				LangCore.logWarning("LSP completion failed, falling back to embedded: " + e.getMessage());
-			}
-		}
-
-		// Embedded engine fallback
+		// Embedded engine
 		Location editoInputFile = sourceContext.getFileLocation();
 		IProject project = ResourceUtils.getProjectFromMemberLocation(editoInputFile);
 		String dubPath = LangCore.settings().SDK_LOCATION.getValue(project).toString();

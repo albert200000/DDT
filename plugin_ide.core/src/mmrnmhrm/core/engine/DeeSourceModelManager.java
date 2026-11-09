@@ -25,37 +25,18 @@ import melnorme.lang.ide.core.engine.SourceModelManager;
 import melnorme.lang.tooling.structure.SourceFileStructure;
 import melnorme.utilbox.concurrency.OperationCancellation;
 import melnorme.utilbox.misc.Location;
-import mmrnmhrm.core.lsp.LspServer;
-import mmrnmhrm.core.lsp.LspTextSynchronizer;
 
 public class DeeSourceModelManager extends SourceModelManager {
 
 	protected final DeeLanguageEngine languageEngine;
-	private final LspTextSynchronizer lspSync;
 
 	public DeeSourceModelManager() {
-		this(DeeLanguageEngine.getDefault(), null, null);
+		this(DeeLanguageEngine.getDefault());
 	}
 
 	public DeeSourceModelManager(DeeLanguageEngine languageEngine) {
-		this(languageEngine, null, null);
-	}
-
-	public DeeSourceModelManager(DeeLanguageEngine languageEngine, LspTextSynchronizer lspSync) {
-		this(languageEngine, null, lspSync);
-	}
-
-	public DeeSourceModelManager(DeeLanguageEngine languageEngine, LspServer lspServer,
-			LspTextSynchronizer lspSync) {
-		super(new DocumentReconcileManager(), lspServer == null ? new ProblemMarkerUpdater()
-				: new ProblemMarkerUpdater() {
-					@Override
-					protected boolean shouldUpdateMarkers(StructureInfo structureInfo) {
-						return !lspServer.isReady();
-					}
-				});
+		super(new DocumentReconcileManager(), new ProblemMarkerUpdater());
 		this.languageEngine = assertNotNull(languageEngine);
-		this.lspSync = lspSync;
 	}
 
 	public SemanticManager getServerSemanticManager() {
@@ -124,10 +105,6 @@ public class DeeSourceModelManager extends SourceModelManager {
 
 	@Override
 	protected StructureUpdateTask createUpdateTask(StructureInfo structureInfo, String source) {
-		if (lspSync != null) {
-			lspSync.notifyChange(structureInfo.getLocation(), source);
-		}
-
 		assertNotNull(source);
 
 		return new WorkingCopyStructureUpdateTask(structureInfo) {
@@ -159,9 +136,6 @@ public class DeeSourceModelManager extends SourceModelManager {
 
 	@Override
 	protected DisconnectUpdatesTask createDisconnectTask(StructureInfo structureInfo) {
-		if (lspSync != null) {
-			lspSync.notifyClose(structureInfo.getLocation());
-		}
 		return new DisconnectUpdatesTask(structureInfo) {
 			@Override
 			protected void handleDisconnectForLocation(Location location) {
@@ -172,9 +146,6 @@ public class DeeSourceModelManager extends SourceModelManager {
 
 	@Override
 	protected StructureUpdateTask createUpdateTask_forFileSave(StructureInfo structureInfo, String source) {
-		if (lspSync != null) {
-			lspSync.notifySave(structureInfo.getLocation());
-		}
 		return null;
 	}
 
