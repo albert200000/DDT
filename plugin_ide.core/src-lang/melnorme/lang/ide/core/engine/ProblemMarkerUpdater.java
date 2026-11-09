@@ -40,29 +40,29 @@ import melnorme.utilbox.ownership.IDisposable;
 import melnorme.utilbox.ownership.LifecycleObject;
 
 public class ProblemMarkerUpdater extends LifecycleObject {
-	
+
 	protected SourceModelManager sourceModelManager;
 	protected final ITaskAgent executor = CoreExecutors.newExecutorTaskAgent(getClass());
-	
+
 	public ProblemMarkerUpdater() {
 	}
-	
+
 	public void install(SourceModelManager sourceModelManager) {
 		this.sourceModelManager = sourceModelManager;
 		IDisposable listenerRegistration = sourceModelManager.addListener(problemUpdaterListener);
 		asOwner().bind(listenerRegistration);
-		
+
 		sourceModelManager.asOwner().bind(this); // Make ProblemMarkerUpdater be owned by the model manager
 	}
-	
+
 	@Override
 	protected void dispose_post() {
 		executor.shutdownNowAndCancelAll();
 		super.dispose_post();
 	}
-	
+
 	/** Override to suppress embedded parser markers when an external backend is active. */
-	protected boolean shouldUpdateMarkers(StructureInfo structureInfo) {
+	protected boolean shouldUpdateMarkers(@SuppressWarnings("unused") StructureInfo structureInfo) {
 		return true;
 	}
 
@@ -88,26 +88,26 @@ public class ProblemMarkerUpdater extends LifecycleObject {
 			executor.submitTask(task);
 		}
 	};
-	
+
 	protected static class UpdateProblemMarkersTask extends CancellableTask {
-		
+
 		protected final StructureInfo structureInfo;
 		protected final Location location;
 		protected final SourceFileStructure structure;
 		protected final CommonResult<SourceFileStructure> storedData;
-		
+
 		public UpdateProblemMarkersTask(StructureInfo structureInfo) throws CommonException {
 			this.structureInfo = assertNotNull(structureInfo);
 			this.location = assertNotNull(structureInfo.getLocation());
 			this.storedData = structureInfo.getStoredData();
 			this.structure = storedData.get();
 		}
-		
+
 		@Override
 		protected void doRun() {
 			try {
 				checkIsStillValid();
-				
+
 				updateProblemMarkers();
 			} catch(CoreException ce) {
 				EclipseCore.logStatus(ce);
@@ -115,23 +115,23 @@ public class ProblemMarkerUpdater extends LifecycleObject {
 				return;
 			}
 		}
-		
+
 		protected void checkIsStillValid() throws OperationCancellation {
 			if(structureInfo.isStale(storedData)) {
 				// A new update is on the way, so ignore these marker updates
 				throw new OperationCancellation();
 			}
 		}
-		
+
 		protected void updateProblemMarkers() throws CoreException {
 			// Review if this can run outside lock
 			IFile[] files = ResourceUtils.getWorkspaceRoot().findFilesForLocationURI(location.toUri());
 			if(files.length == 0) {
 				return;
 			}
-			
+
 			final IFile file = files[0];
-			
+
 			ResourceUtils.getWorkspace().run(new IWorkspaceRunnable() {
 				@Override
 				public void run(IProgressMonitor monitor) throws CoreException {
@@ -143,26 +143,26 @@ public class ProblemMarkerUpdater extends LifecycleObject {
 				}
 			}, file, IWorkspace.AVOID_UPDATE, null);
 		}
-	
+
 		protected void doCreateProblemMarkers(IFile file) throws CoreException, OperationCancellation {
 			checkIsStillValid();
-			
+
 			if(!file.exists()) {
 				return; // It could have been removed in the meanwhile.
 			}
-			
+
 			file.deleteMarkers(LangCore_Actual.SOURCE_PROBLEM_ID, true, IResource.DEPTH_ZERO);
-			
+
 			if(structure == null) {
 				return;
 			}
-			
+
 			for (ParserError problem : structure.getParserProblems()) {
 	//			checkIsStillValid();
 				createMarker(location, file, problem);
 			}
 		}
-		
+
 		protected void createMarker(final Location location, IFile file, ParserError problem) throws CoreException {
 			IMarker marker = file.createMarker(LangCore_Actual.SOURCE_PROBLEM_ID);
 			marker.setAttribute(IMarker.LOCATION, location.toPathString());
@@ -171,6 +171,6 @@ public class ProblemMarkerUpdater extends LifecycleObject {
 			marker.setAttribute(IMarker.CHAR_START, problem.getStartPos());
 			marker.setAttribute(IMarker.CHAR_END, problem.getEndPos());
 		}
-	
+
 	}
 }

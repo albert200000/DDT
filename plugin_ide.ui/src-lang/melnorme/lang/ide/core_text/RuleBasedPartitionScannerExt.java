@@ -55,7 +55,7 @@ public class RuleBasedPartitionScannerExt extends BufferedRuleBasedScannerExt im
 	 * @param rules the sequence of rules controlling this scanner
 	 */
 	@Override
-	public void setRules(IRule[] rules) {
+	public void setRules(IRule... rules) {
 		throw new UnsupportedOperationException();
 	}
 

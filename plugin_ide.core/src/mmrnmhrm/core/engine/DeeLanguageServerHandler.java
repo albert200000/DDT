@@ -45,7 +45,7 @@ public class DeeLanguageServerHandler implements ILanguageServerHandler  {
 
 		bundleListener = (UpdateEvent<BundleInfo> event) -> {
 			if (event.newProjectInfo2 != null && lspServer.isReady()) {
-				pushImportPathsForProject(event.project, event.newProjectInfo2);
+				pushImportPathsForProject(event.newProjectInfo2);
 			}
 		};
 
@@ -69,12 +69,12 @@ public class DeeLanguageServerHandler implements ILanguageServerHandler  {
 		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 			BundleInfo info = LangCore.getBundleModel().getBundleInfo(project);
 			if (info != null) {
-				pushImportPathsForProject(project, info);
+				pushImportPathsForProject(info);
 			}
 		}
 	}
 
-	private void pushImportPathsForProject(IProject project, BundleInfo bundleInfo) {
+	private void pushImportPathsForProject(BundleInfo bundleInfo) {
 		List<String> paths = new ArrayList<>();
 		DubBundleDescription bundleDesc = bundleInfo.getBundleDesc();
 

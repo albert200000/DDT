@@ -201,7 +201,7 @@ public abstract class AbstractSourceColoringConfigurationBlock extends AbstractP
 			}
 		});
 		treeViewer.setInput(coloringOptionsList);
-		treeViewer.setExpandedElements(coloringOptionsList.getChildren());
+		treeViewer.setExpandedElements((Object[]) coloringOptionsList.getChildren());
 		
 		
 		Composite itemEditorComposite = new Composite(editorComposite, SWT.NONE);
