@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.Strictness;
 import com.google.gson.stream.JsonToken;
 
 import melnorme.utilbox.core.CommonException;
@@ -27,34 +28,34 @@ import melnorme.utilbox.core.CommonException;
  * An alternative to {@link JsonParser}, which preservers the statically-checked exception throwing API
  */
 public class JsonParserX {
-	
+
 	public static JsonReader newReader(String json, boolean lenient) {
 		return newReader(new StringReader(json), lenient);
 	}
-	
+
 	public static JsonReader newReader(Reader reader, boolean lenient) {
 		JsonReader jsonReader = new JsonReader(reader);
-		jsonReader.setLenient(lenient);
+		jsonReader.setStrictness(lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT);
 		return jsonReader;
 	}
-	
+
 	/* -----------------  ----------------- */
-	
+
 	public JsonElement parse(String json, boolean lenient) throws IOException, JsonSyntaxExceptionX {
 		return parse(new StringReader(json), lenient);
 	}
-	
+
 	public JsonElement parse(Reader reader, boolean lenient) throws IOException, JsonSyntaxExceptionX {
 		JsonReader json = new JsonReader(reader);
 		boolean originalLenient = json.isLenient();
-		json.setLenient(lenient);
+		json.setStrictness(lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT);
 		try {
 			return parse(json);
 		} finally {
-			json.setLenient(originalLenient);
+			json.setStrictness(originalLenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT);
 		}
 	}
-	
+
 	public JsonElement parse(JsonReader reader) throws IOException, JsonSyntaxExceptionX {
 		try {
 			return JsonParser.parseReader(reader);
@@ -67,16 +68,16 @@ public class JsonParserX {
 			throw new JsonSyntaxExceptionX(e.getCause() != null ? e.getCause() : e);
 		}
 	}
-	
+
 	@SuppressWarnings("serial")
 	public static class JsonSyntaxExceptionX extends Exception {
 		public JsonSyntaxExceptionX(Throwable cause) {
 			super(cause);
 		}
 	}
-	
+
 	/* -----------------  ----------------- */
-	
+
 	public JsonElement parse_common(JsonReader reader) throws CommonException {
 		try {
 			return parse(reader);
@@ -88,7 +89,7 @@ public class JsonParserX {
 	}
 
 	/* -----------------  ----------------- */
-	
+
 	public JsonObject parseObject(JsonReader reader) throws CommonException {
 		JsonElement element = parse_common(reader);
 		if(element.isJsonObject()) {
@@ -97,15 +98,15 @@ public class JsonParserX {
 			throw new CommonException("Parsed JSON element is not a JSON object.");
 		}
 	}
-	
+
 	public JsonObject parseObject(Reader json, boolean lenient) throws CommonException {
 		return parseObject(newReader(json, lenient));
 	}
-	
+
 	public JsonObject parseObject(String json, boolean lenient) throws CommonException {
 		return parseObject(newReader(json, lenient));
 	}
-	
+
 	public static boolean isEndOfInput(JsonReader jsonReader) throws IOException {
 		try {
 			return jsonReader.peek() == JsonToken.END_DOCUMENT;
@@ -118,5 +119,5 @@ public class JsonParserX {
 			throw e;
 		}
 	}
-	
+
 }

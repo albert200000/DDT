@@ -24,6 +24,7 @@ import melnorme.utilbox.core.CommonException;
 import melnorme.utilbox.misc.FileUtil;
 import melnorme.utilbox.misc.StringUtil;
 
+import com.google.gson.Strictness;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
 
@@ -128,8 +129,8 @@ public class GenieServer extends AbstractSocketServer {
 			) {
 				
 				try {
-					jsonParser.setLenient(true);
-					jsonWriter.setLenient(true);
+					jsonParser.setStrictness(Strictness.LENIENT);
+					jsonWriter.setStrictness(Strictness.LENIENT);
 					
 					while(!jsonParser.isEOF()) {
 						processJsonMessage(jsonParser, jsonWriter);

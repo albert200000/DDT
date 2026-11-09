@@ -153,7 +153,7 @@ public class LspServer {
 	}
 
 	/** Returns the serverCapabilities object from the initialize response, or null on error. */
-	private JsonObject sendInitialize(LspMessageRouter r) throws IOException {
+	private static JsonObject sendInitialize(LspMessageRouter r) throws IOException {
 		JsonObject params = new JsonObject();
 
 		// processId — lets serve-d exit if we crash
@@ -216,7 +216,7 @@ public class LspServer {
 		return null;
 	}
 
-	private void sendNotification(LspMessageRouter r, String method, JsonObject params) {
+	private static void sendNotification(LspMessageRouter r, String method, JsonObject params) {
 		try {
 			r.sendNotification(method, params);
 		} catch (IOException e) {
@@ -224,7 +224,7 @@ public class LspServer {
 		}
 	}
 
-	private void sendCompilerConfiguration(LspMessageRouter r) {
+	private static void sendCompilerConfiguration(LspMessageRouter r) {
 		String configuredCompiler = DeeToolPreferences.LSP_DUB_COMPILER.get().trim();
 		String configuredStdlibPaths = DeeToolPreferences.LSP_STDLIB_PATHS.get().trim();
 

@@ -33,40 +33,40 @@ import dtool.util.JsonReaderExt;
 import dtool.util.JsonWriterExt;
 
 public abstract class AbstractClientOperation extends AbstractCmdlineOperation {
-	
+
 	public static Socket createLocalConnection(int serverPortNumber) throws UnknownHostException, IOException {
 		return new Socket("127.0.0.1", serverPortNumber);
 	}
-	
+
 	public AbstractClientOperation(String commandName) {
 		super(commandName);
 	}
-	
+
 	protected int portNumber = -1;
-	
+
 	@Override
 	protected void processArgs() {
 		String portNumberArg = retrieveFirstUnparsedArgument(true);
 		portNumber = portNumberArg == null ? -1 : parsePositiveInt(portNumberArg);
 	}
-	
+
 	@Override
 	public void perform() {
 		String responseString = performAndGetResponse();
 		handleResponseString(responseString);
 	}
-	
+
 	protected void handleResponseString(String responseString) {
 		System.out.println(responseString);
 	}
-	
+
 	public String performAndGetResponse() {
 		if(portNumber == -1) {
 			File sentinelFile = GenieServer.getSentinelFile();
 			if(!sentinelFile.exists()) {
 				throw errorBail("Did not detect any server running.", null);
 			}
-			
+
 			String fileContents;
 			try {
 				fileContents = FileUtil.readStringFromFile(sentinelFile, StringUtil.UTF8);
@@ -82,31 +82,30 @@ public abstract class AbstractClientOperation extends AbstractCmdlineOperation {
 				throw errorBail("Invalid contents of sentinel file, could not parse port number: " + fileContents, e);
 			}
 		}
-		
+
 		Socket socket;
 		try {
 			socket = createLocalConnection(portNumber);
 		} catch (IOException ioe) {
 			throw errorBail("Error opening connection on port " + portNumber + ".", ioe);
 		}
-		
+
 		try (
 			OutputStreamWriter serverInput = new OutputStreamWriter(socket.getOutputStream(), UTF8);
 			BufferedReader serverOutput = new BufferedReader(new InputStreamReader(socket.getInputStream(), UTF8));
 		) {
-			
+
 			InputStoringReader<StringWriter> serverOutStoringReader = InputStoringReader.createDefault(serverOutput);
-			
+
 			try(
 				JsonWriterExt jsonWriter = new JsonWriterExt(serverInput);
 				JsonReaderExt jsonReader = new JsonReaderExt(serverOutStoringReader);
 			) {
-				
-				jsonWriter.setLenient(true);
+				jsonWriter.setStrictness(com.google.gson.Strictness.LENIENT);
 				jsonReader.setLenient(true);
-				
+
 				writeRequest(jsonWriter);
-				
+
 				jsonReader.skipValue();
 				String responseString = serverOutStoringReader.getStoredInput().toString();
 				return responseString;
@@ -115,14 +114,14 @@ public abstract class AbstractClientOperation extends AbstractCmdlineOperation {
 			throw errorBail("Exception during client request.", ioe);
 		}
 	}
-	
+
 	public void writeRequest(JsonWriterExt jsonWriter) throws IOException {
 		jsonWriter.beginObject();
 		writeRequestObjectProperties(jsonWriter);
 		jsonWriter.endObject();
 		jsonWriter.flush();
 	}
-	
+
 	protected abstract void writeRequestObjectProperties(JsonWriterExt jsonWriter) throws IOException;
-	
+
 }

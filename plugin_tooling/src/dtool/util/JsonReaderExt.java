@@ -19,6 +19,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.google.gson.Strictness;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
 
@@ -26,17 +27,25 @@ import dtool.com.google.gson.stream.JsonReader_Mod;
 
 /** Utility extensions to JsonReader */
 public class JsonReaderExt extends JsonReader_Mod {
-	
+
 	public static JsonReaderExt create(Reader in) {
 		return new JsonReaderExt(in);
 	}
-	
-	protected final JsonReaderExt jsonReader = this; 
-	
+
+	protected final JsonReaderExt jsonReader = this;
+
 	public JsonReaderExt(Reader in) {
 		super(in);
 	}
-	
+
+	public void setStrictness(Strictness strictness) {
+		if(strictness == Strictness.LENIENT) {
+			setLenient(true);
+		} else {
+			setLenient(false);
+		}
+	}
+
 	public void consumeExpected(JsonToken expectedToken) throws IOException {
 		JsonToken tokenType = validateExpectedToken(expectedToken);
 		if(tokenType == JsonToken.BEGIN_OBJECT) {
@@ -52,7 +61,7 @@ public class JsonReaderExt extends JsonReader_Mod {
 			assertFail();
 		}
 	}
-	
+
 	protected JsonToken validateExpectedToken(JsonToken expectedToken) throws IOException, MalformedJsonException {
 		JsonToken tokenType = jsonReader.peek();
 		if(tokenType != expectedToken) {
@@ -60,7 +69,7 @@ public class JsonReaderExt extends JsonReader_Mod {
 		}
 		return tokenType;
 	}
-	
+
 	public boolean tryConsume(JsonToken jsonToken) throws IOException {
 		if(peek() == jsonToken) {
 			consumeExpected(jsonToken);
@@ -68,7 +77,7 @@ public class JsonReaderExt extends JsonReader_Mod {
 		}
 		return false;
 	}
-	
+
 	public boolean isEOF() throws IOException {
 		try {
 			if(peek() == JsonToken.END_DOCUMENT) {

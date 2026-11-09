@@ -35,10 +35,6 @@ public class LspConnection {
 	private final OutputStream out;
 	private final Thread readerThread;
 	private volatile boolean closed = false;
-
-	@SuppressWarnings("deprecation")
-	private static final JsonParser PARSER = new JsonParser();
-
 	private final Runnable onDisconnected;
 
 	public LspConnection(InputStream in, OutputStream out, Consumer<JsonObject> handler, Runnable onDisconnected) {
@@ -55,7 +51,7 @@ public class LspConnection {
 				int contentLength = readHeaders(in);
 				byte[] body = readExact(in, contentLength);
 				String json = new String(body, StandardCharsets.UTF_8);
-				JsonObject msg = PARSER.parse(json).getAsJsonObject();
+				JsonObject msg = JsonParser.parseString(json).getAsJsonObject();
 				handler.accept(msg);
 			}
 		} catch (IOException e) {
@@ -66,7 +62,7 @@ public class LspConnection {
 		}
 	}
 
-	private int readHeaders(InputStream in) throws IOException {
+	private static int readHeaders(InputStream in) throws IOException {
 		int contentLength = -1;
 		String line;
 		while (!(line = readLine(in)).isEmpty()) {
@@ -80,7 +76,7 @@ public class LspConnection {
 		return contentLength;
 	}
 
-	private String readLine(InputStream in) throws IOException {
+	private static String readLine(InputStream in) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		int c;
 		while ((c = in.read()) != -1) {
@@ -94,7 +90,7 @@ public class LspConnection {
 		throw new IOException("serve-d stream closed");
 	}
 
-	private byte[] readExact(InputStream in, int count) throws IOException {
+	private static byte[] readExact(InputStream in, int count) throws IOException {
 		byte[] buf = new byte[count];
 		int pos = 0;
 		while (pos < count) {
